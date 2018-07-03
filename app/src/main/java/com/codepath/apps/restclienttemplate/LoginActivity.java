@@ -3,9 +3,6 @@ package com.codepath.apps.restclienttemplate;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 
 import com.codepath.apps.restclienttemplate.models.SampleModel;
@@ -37,25 +34,25 @@ public class LoginActivity extends OAuthLoginActionBarActivity<TwitterClient> {
 
 
 	// Inflate the menu; this adds items to the action bar if it is present.
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		Log.d("*********", "created the options menu i think");
-		getMenuInflater().inflate(R.menu.login, menu);
-		return true;
-	}
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-    	Log.d("*********", "the options item has been selected");
-        // Handle presses on the action bar items
-        switch (item.getItemId()) {
-            case R.id.miCompose:
-//                composeMessage();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
+//	@Override
+//	public boolean onCreateOptionsMenu(Menu menu) {
+//		Log.d("*********", "created the options menu i think");
+//		getMenuInflater().inflate(R.menu.login, menu);
+//		return true;
+//	}
+//
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//    	Log.d("*********", "the options item has been selected");
+//        // Handle presses on the action bar items
+//        switch (item.getItemId()) {
+//            case R.id.miCompose:
+////                composeMessage();
+//                return true;
+//            default:
+//                return super.onOptionsItemSelected(item);
+//        }
+//    }
 
 	// OAuth authenticated successfully, launch primary authenticated activity
 	// i.e Display application "homepage"

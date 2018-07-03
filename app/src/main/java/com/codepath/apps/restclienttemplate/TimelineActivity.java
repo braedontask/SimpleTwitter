@@ -1,11 +1,13 @@
 package com.codepath.apps.restclienttemplate;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuItem;
 
 import com.codepath.apps.restclienttemplate.models.Tweet;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -19,7 +21,7 @@ import java.util.ArrayList;
 import cz.msebera.android.httpclient.Header;
 
 public class TimelineActivity extends AppCompatActivity {
-
+    private final int REQUEST_CODE = 20;
     private TwitterClient client;
     TweetAdapter tweetAdapter;
     ArrayList<Tweet> tweets;
@@ -45,6 +47,19 @@ public class TimelineActivity extends AppCompatActivity {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+    	Log.d("*********", "the options item has been selected");
+        // Handle presses on the action bar items
+        switch (item.getItemId()) {
+            case R.id.miCompose:
+                composeMessage();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     private void populateTimeline() {
@@ -87,5 +102,11 @@ public class TimelineActivity extends AppCompatActivity {
                 throwable.printStackTrace();
             }
         });
+    }
+
+    public void composeMessage() {
+        Log.d("*********", "clicked the create tweet button");
+        Intent intent = new Intent(TimelineActivity.this, ComposeActivity.class);
+        startActivityForResult(intent, REQUEST_CODE);
     }
 }
