@@ -108,5 +108,6 @@ public class TimelineActivity extends AppCompatActivity {
         Log.d("*********", "clicked the create tweet button");
         Intent intent = new Intent(TimelineActivity.this, ComposeActivity.class);
         startActivityForResult(intent, REQUEST_CODE);
+//        startActivity(intent);
     }
 }
