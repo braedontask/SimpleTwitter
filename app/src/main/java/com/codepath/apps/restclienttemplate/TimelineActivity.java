@@ -8,6 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.codepath.apps.restclienttemplate.models.Tweet;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -60,6 +61,22 @@ public class TimelineActivity extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
+            String tweetBody = data.getExtras().getString("tweetBody");
+            publishTweet(tweetBody);
+            Toast.makeText(this, tweetBody, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void publishTweet(String tweetBody) {
+        Log.d("*********", "welp, im publishing the tweet via the twitter api");
+        client.sendTweet(tweetBody, new JsonHttpResponseHandler() {
+            
+        });
     }
 
     private void populateTimeline() {

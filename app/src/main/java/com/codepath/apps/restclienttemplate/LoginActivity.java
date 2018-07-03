@@ -40,19 +40,6 @@ public class LoginActivity extends OAuthLoginActionBarActivity<TwitterClient> {
 //		getMenuInflater().inflate(R.menu.login, menu);
 //		return true;
 //	}
-//
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//    	Log.d("*********", "the options item has been selected");
-//        // Handle presses on the action bar items
-//        switch (item.getItemId()) {
-//            case R.id.miCompose:
-////                composeMessage();
-//                return true;
-//            default:
-//                return super.onOptionsItemSelected(item);
-//        }
-//    }
 
 	// OAuth authenticated successfully, launch primary authenticated activity
 	// i.e Display application "homepage"
@@ -76,11 +63,5 @@ public class LoginActivity extends OAuthLoginActionBarActivity<TwitterClient> {
 	public void loginToRest(View view) {
 		getClient().connect();
 	}
-
-//	public void composeMessage(MenuItem mi) {
-//	    Log.d("*********", "clicked the create tweet button");
-//        Intent intent = new Intent(LoginActivity.this, ComposeActivity.class);
-//        startActivityForResult(intent, REQUEST_CODE);
-//    }
 
 }
