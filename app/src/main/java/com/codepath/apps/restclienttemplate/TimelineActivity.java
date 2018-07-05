@@ -16,6 +16,7 @@ import com.loopj.android.http.JsonHttpResponseHandler;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.parceler.Parcels;
 
 import java.util.ArrayList;
 
@@ -66,20 +67,28 @@ public class TimelineActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
-            String tweetBody = data.getExtras().getString("tweetBody");
-            publishTweet(tweetBody);
-            Toast.makeText(this, tweetBody, Toast.LENGTH_SHORT).show();
+//            String tweetBody = data.getExtras().getString("tweetBody");
+            Tweet tweet = (Tweet) Parcels.unwrap(data.getParcelableExtra(Tweet.class.getSimpleName()));
+            Log.d("*********", "IM ABOUT TO PRINT THE TWEET");
+            Log.d("*********", tweet.body);
+//            Log.d("*********", tweet.)
+            insertTweet(tweet);
+//            Toast.makeText(this, tweetBody, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Tweet Published", Toast.LENGTH_SHORT).show();
+
         }
     }
 
-    private void publishTweet(String tweetBody) {
+    private void insertTweet(Tweet tweet) {
         Log.d("*********", "welp, im publishing the tweet via the twitter api");
-        client.sendTweet(tweetBody, new JsonHttpResponseHandler() {
-            
-        });
+        Log.d("*********", tweet.user.profileImageUrl);
+        tweets.add(0, tweet);
+        tweetAdapter.notifyItemInserted(0);
+        rvTweets.scrollToPosition(0);
     }
 
     private void populateTimeline() {
+        Log.d("*********", "im about to populate the TL");
         client.getHomeTimeline(new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
