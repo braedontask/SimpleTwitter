@@ -8,6 +8,12 @@
         app:showAsAction="ifRoom"
         android:title="Compose">
     </item>
+    <item
+        android:id="@+id/miDecompose"
+        android:icon="@drawable/ic_launcher"
+        app:showAsAction="ifRoom"
+        android:title="Compose">
+    </item>
     <!--<item-->
         <!--android:id="@+id/miProfile"-->
         <!--android:icon="@drawable/ic_launcher"-->

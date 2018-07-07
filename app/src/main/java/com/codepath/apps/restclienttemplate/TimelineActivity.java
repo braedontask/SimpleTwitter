@@ -2,6 +2,8 @@ package com.codepath.apps.restclienttemplate;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -22,12 +24,14 @@ import java.util.ArrayList;
 
 import cz.msebera.android.httpclient.Header;
 
-public class TimelineActivity extends AppCompatActivity {
+public class TimelineActivity extends AppCompatActivity implements ComposeModalFragment.SendTweetDialogListener {
     private final int REQUEST_CODE = 20;
     private TwitterClient client;
+    private SwipeRefreshLayout swipeContainer;
     TweetAdapter tweetAdapter;
     ArrayList<Tweet> tweets;
     RecyclerView rvTweets;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,25 +44,75 @@ public class TimelineActivity extends AppCompatActivity {
         rvTweets.setLayoutManager(new LinearLayoutManager(this));
         rvTweets.setAdapter(tweetAdapter);
 
+        swipeContainer = (SwipeRefreshLayout) findViewById(R.id.swipeContainer);
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                fetchTimelineAsync(0);
+            }
+        });
+        swipeContainer.setColorSchemeResources(android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light);
+
+
         client = TwitterApp.getRestClient(this);
         populateTimeline();
     }
 
+    private void showModalDialog() {
+        FragmentManager fm = getSupportFragmentManager();
+        ComposeModalFragment composeModalFragment = ComposeModalFragment.newInstance("Some Title");
+        composeModalFragment.show(fm, "fragment_compose_tweet");
+    }
+
+    public void fetchTimelineAsync(int page) {
+        tweetAdapter.clear();
+        populateTimeline();
+        swipeContainer.setRefreshing(false);
+    }
+
+    public void _fetchTimelineAsync(int page) {
+        client.getHomeTimeline(new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
+                Log.d("TwitterClient", response.toString());
+                ArrayList<Tweet> refTweets = new ArrayList<>();
+                for (int i = 0; i < response.length(); i++) {
+                    try {
+                        refTweets.add(Tweet.fromJSON(response.getJSONObject(i)));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+                tweetAdapter.addAll(refTweets);
+                swipeContainer.setRefreshing(false);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONArray errorResponse) {
+                Log.d("TwitterClient", errorResponse.toString());
+                throwable.printStackTrace();
+            }
+        });
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
+        // inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-    	Log.d("*********", "the options item has been selected");
-        // Handle presses on the action bar items
         switch (item.getItemId()) {
             case R.id.miCompose:
                 composeMessage();
                 return true;
+            case R.id.miDecompose:
+                showModalDialog();
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -67,28 +121,20 @@ public class TimelineActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
-//            String tweetBody = data.getExtras().getString("tweetBody");
             Tweet tweet = (Tweet) Parcels.unwrap(data.getParcelableExtra(Tweet.class.getSimpleName()));
-            Log.d("*********", "IM ABOUT TO PRINT THE TWEET");
-            Log.d("*********", tweet.body);
-//            Log.d("*********", tweet.)
             insertTweet(tweet);
-//            Toast.makeText(this, tweetBody, Toast.LENGTH_SHORT).show();
             Toast.makeText(this, "Tweet Published", Toast.LENGTH_SHORT).show();
 
         }
     }
 
     private void insertTweet(Tweet tweet) {
-        Log.d("*********", "welp, im publishing the tweet via the twitter api");
-        Log.d("*********", tweet.user.profileImageUrl);
         tweets.add(0, tweet);
         tweetAdapter.notifyItemInserted(0);
         rvTweets.scrollToPosition(0);
     }
 
     private void populateTimeline() {
-        Log.d("*********", "im about to populate the TL");
         client.getHomeTimeline(new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
@@ -131,9 +177,27 @@ public class TimelineActivity extends AppCompatActivity {
     }
 
     public void composeMessage() {
-        Log.d("*********", "clicked the create tweet button");
         Intent intent = new Intent(TimelineActivity.this, ComposeActivity.class);
         startActivityForResult(intent, REQUEST_CODE);
-//        startActivity(intent);
+    }
+
+    @Override
+    public void onSendTweet(String tweetBody) {
+        client.sendTweet(tweetBody, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                try {
+                    Tweet tweet = Tweet.fromJSON(response);
+                    insertTweet(tweet);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                Log.d("TwitterClient", errorResponse.toString());
+                throwable.printStackTrace();
+            }
+        });
     }
 }
